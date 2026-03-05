@@ -1,0 +1,2 @@
+# Code-for-Dissipation-Reliability-Tradeoff-for-Stochastic-CMOS-Bits-in-Series
+This repository contains Julia code for computing the dissipation-reliability tradeoff in stochastic CMOS circuits using tensor network methods, as described in the associated publication. The code is written in Julia and relies primarily on the ITensors.jl package (Fishman, White, and Stoudenmire, SciPost Phys. Codebases, 2022).
