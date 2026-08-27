@@ -1,0 +1,106 @@
+% ---------------------------------------------------------------------------
+%  figstyle.tex -- shared style for every figure in the CMOS chain paper.
+%  \input this from each figN.tex. Do not restyle locally; change it here.
+%
+%  Design rule: every figure is authored at EXACTLY the width it occupies on
+%  the page, so \includegraphics applies no scaling and a 9pt label in one
+%  figure is a 9pt label in every other. The paper's geometry, measured from
+%  revtex4-2 [reprint,aps,pre]:
+%      \columnwidth = 246.0pt = 3.404in   -> \figcolwidth
+%      \textwidth   = 510.0pt = 7.057in   -> \figfullwidth
+%  Include single-column figures with [width=\columnwidth] and full-width
+%  figures (figure*) with [width=\textwidth]. Nothing else.
+%
+%  Verifying the width: pdfinfo reports big points (72/in), not LaTeX pt
+%  (72.27/in). A correct column figure reads 245.08 bp; a correct full-width
+%  figure reads 508.09 bp. Those are the numbers to check, not 246 and 510.
+%
+%  Fonts: Computer Modern, i.e. the LaTeX default. Load no font package.
+%  Class sizes for reference: body 10, \small 9, \footnotesize 8, \scriptsize 7.
+% ---------------------------------------------------------------------------
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{amsmath}
+\usepackage{braket}
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{arrows.meta,positioning,calc,backgrounds,fit,decorations.pathreplacing}
+\usepgfplotslibrary{colormaps}
+
+% ---- the two canonical widths -------------------------------------------
+\newlength{\figcolwidth}   \setlength{\figcolwidth}{246.0pt}
+\newlength{\figfullwidth}  \setlength{\figfullwidth}{510.0pt}
+
+% ---- force an exact output width ----------------------------------------
+%  Put \figcanvas{<width>}{<height>} as the FIRST line inside a tikzpicture.
+%  It pins the bounding box, so the emitted PDF is exactly that size no
+%  matter what the content does, and no rescaling happens at include time.
+\newcommand{\figcanvas}[2]{\useasboundingbox (0,0) rectangle (#1,#2);}
+
+% ---- type sizes (true points, because scale is 1) -----------------------
+\newcommand{\figaxislabel}{\small}       % 9pt  -- axis labels
+\newcommand{\figticklabel}{\footnotesize}% 8pt  -- tick labels
+\newcommand{\figannot}{\footnotesize}    % 8pt  -- in-figure annotation
+\newcommand{\figpanel}{\small\bfseries}  % 9pt  -- panel letters (a), (b)
+
+% ---- palette -------------------------------------------------------------
+\definecolor{figblueA}{HTML}{1F4E9C}  % dark blue   -- emphasis curve 1
+\definecolor{figblueB}{HTML}{3C8DBC}  % mid blue    -- emphasis curve 2
+\definecolor{figgreen}{HTML}{9CC7A9}  % pale green  -- de-emphasised curves
+\definecolor{figgray}{HTML}{7F7F7F}   % neutral rules and guides
+\definecolor{figred}{HTML}{C0392B}    % the one warning/annotation colour
+\definecolor{fignodeA}{HTML}{6E8B74}  % node dot, k=0 side
+\definecolor{fignodeB}{HTML}{1F4E9C}  % node dot, k=1 side
+\definecolor{figshadeA}{HTML}{EAEFEA} % k=0 panel background
+\definecolor{figshadeB}{HTML}{DCE8F5} % k=1 panel background
+% second operator colour: the reduced MPO (physical dimension d), as against
+% the full MPO (physical dimension D) drawn in figblueA/figblueB.
+\definecolor{figtealA}{HTML}{1B6E6A} % reduced-MPO outline
+\definecolor{figtealB}{HTML}{9FCFCB} % reduced-MPO fill
+
+% ---- the V_dd ramp -------------------------------------------------------
+%  Four samples of viridis at 0.08, 0.36, 0.64 and 0.92, the ramp the
+%  matplotlib composite used, so a given V_dd is the same colour in every
+%  panel that shows one.  The values are read out of the content stream of
+%  PostReviewFigures/CompositeFigure3_v3.pdf, so they are matplotlib's own.
+\definecolor{figvddA}{rgb}{0.283197,0.115680,0.436115}  % V_dd/V_T = 1.1
+\definecolor{figvddB}{rgb}{0.179019,0.433756,0.557430}  % V_dd/V_T = 1.2
+\definecolor{figvddC}{rgb}{0.170948,0.694384,0.493803}  % V_dd/V_T = 1.3
+\definecolor{figvddD}{rgb}{0.793760,0.880678,0.120005}  % V_dd/V_T = 1.4
+
+% ---- line weights --------------------------------------------------------
+\pgfplotsset{
+  figframe/.style={line width=0.6pt},
+  figcurve/.style={line width=1.0pt},
+  figemph/.style={line width=1.4pt},
+}
+\tikzset{
+  figpanellabel/.style={font=\small\bfseries, inner sep=1pt},
+  figwire/.style={line width=0.9pt},
+  figlead/.style={figgray, line width=0.5pt, densely dotted},
+  figarrow/.style={-{Stealth[length=4pt,width=3pt]}, line width=0.7pt},
+}
+
+% ---- the common axis style ----------------------------------------------
+%  Matches the tick conventions already used by the matplotlib figures:
+%  inward ticks on all four sides, minor ticks visible, no grid.
+\pgfplotsset{
+  figaxis/.style={
+    scale only axis,
+    axis line style={line width=0.6pt},
+    tick align=inside,
+    tickpos=both,
+    minor tick num=1,
+    tick label style={font=\figticklabel},
+    label style={font=\figaxislabel},
+    legend style={font=\figannot, draw=none, fill=none},
+    every axis plot/.append style={figcurve},
+  },
+  figdensity/.style={
+    figaxis,
+    % `viridis high res' is matplotlib's own 256-entry table (the plain
+    % `viridis' key is an 18-point approximation to it), so a density panel
+    % ported from matplotlib keeps the colours it had.
+    colormap/viridis high res,
+    point meta min=0,
+  },
+}

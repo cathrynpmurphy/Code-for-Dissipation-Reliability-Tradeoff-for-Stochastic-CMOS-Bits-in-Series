@@ -1,0 +1,7 @@
+# Qdot, in units of k_B T / tau_0
+# transcribed verbatim from the production DMRG/dissipation runs
+# L    1.1        1.2        1.3        1.4
+1      9.905      12.4566    15.515     19.125
+3      29.82      37.482     46.557     57.259
+5      49.7523    62.534     77.65      95.483
+7      69.5286    87.374     108.49     133.728

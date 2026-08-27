@@ -1,0 +1,120 @@
+% ---------------------------------------------------------------------------
+%  fig3.tex -- Figure 3 of the CMOS chain paper (fig:KLdiv): basis-set and
+%  bond-dimension convergence at L=3, pure vector.
+%
+%  Replaces PostReviewFigures/BasisConvergence_composite.pdf, a matplotlib
+%  export in which BOTH density panels and the colorbar are rasterized
+%  (243x170, 243x171 and 14x362 indexed bitmaps at 100 ppi) -- the lowest
+%  resolution art in the paper.  Here the 2 x 288 cells are vector fills.
+%
+%  Authored at exactly \columnwidth = 246pt, so \includegraphics applies no
+%  scaling: include with [width=\columnwidth].  pdfinfo reads 245.08 bp.
+%
+%  Data: fig3_{pss,prelax}.dat and fig3_{pss,prelax}_c8.dat, written by
+%  prep_fig3.py from ../PostReviewFigures/Figure 3 Data/L2err_P{ss,relax}.txt.
+%  The .dat carries raw log10 of the error; the -13 .. -3 colour window, its
+%  floor and its ceiling are applied here, not in the prep script.
+%
+%  Build: make fig3
+% ---------------------------------------------------------------------------
+\documentclass[border=0pt]{standalone}
+\input{../figstyle}
+
+% ---- geometry, in points on the 246 x 250pt canvas ------------------------
+\def\axL{28}      % x of the axis left edge   (ylabel + 8pt tick labels)
+\def\axW{163}     % axis width
+\def\axH{107.5}   % height of each of the two panels
+\def\axBb{24}     % y of panel (b), the lower one
+\def\axBa{139.5}  % y of panel (a) = \axBb + \axH + 8pt gap
+\def\cbX{196}    % x of the colorbar left edge = \axL + \axW + 5pt
+\def\cbW{7}       % colorbar width
+\def\cbH{223}     % colorbar height: bottom of (b) to top of (a)
+% the colorbar hangs off panel (b); its `at' is in units of that axis's box
+\def\cbAt{1.0307} % = (\cbX - \axL)/\axW
+
+% ---- what both panels share ----------------------------------------------
+%  figdensity carries the colormap (matplotlib's own 256-entry viridis table),
+%  so the cell colours are the ones the figure being replaced used.
+\pgfplotsset{
+  fig3panel/.style={
+    figdensity,
+    axis on top,                 % 288 filled cells would bury the frame
+    scale only axis, anchor=south west,
+    width=\axW pt, height=\axH pt,
+    xmin=1, xmax=65, ymin=5, ymax=95,
+    xtick={20,40,60}, ytick={20,40,60,80},
+    ylabel={Bond dimension $\chi$},
+    point meta min=-13, point meta max=-3,
+  },
+  % the 1e-8 accuracy contour, broken open where its label sits
+  fig3contour/.style={white, line width=1.1pt, unbounded coords=jump,
+                      x filter/.expression={(x>36 && x<47) ? nan : x}},
+}
+\tikzset{
+  fig3letter/.style={figpanellabel, anchor=north west, fill=white,
+                     fill opacity=0.8, text opacity=1, rounded corners=1.5pt,
+                     inner sep=1.8pt},
+  fig3tag/.style={white, font=\figaxislabel, anchor=north east, inner sep=1pt},
+  fig3clabel/.style={white, font=\figannot, anchor=base, inner sep=0pt},
+}
+
+\begin{document}
+\begin{tikzpicture}
+\figcanvas{\figcolwidth}{250pt}
+
+% =========================================================================
+%  (a)  steady state P_ss
+% =========================================================================
+\begin{axis}[fig3panel, at={(\axL pt,\axBa pt)}, xticklabels={}]
+\addplot[matrix plot*, mesh/cols=32, point meta=explicit]
+  table[x=d, y=chi, meta expr={min(max(\thisrow{logerr},-13),-3)}] {fig3_pss.dat};
+\addplot[fig3contour] table[x=d, y=chi] {fig3_pss_c8.dat};
+\draw[figred, line width=1.1pt, dash pattern=on 4pt off 2.5pt]
+  (axis cs:32,5) -- (axis cs:32,95);
+\node[fig3clabel] at (axis cs:41.5,28.0) {$10^{-8}$};
+\node[figred, font=\figannot, rotate=90, anchor=north east, inner sep=2pt]
+  at (axis cs:32,90) {production $d=32$};
+\node[fig3letter] at (axis description cs:0.045,0.955) {(a)};
+\node[fig3tag]    at (axis description cs:0.97,0.94) {$P_{\rm ss}$};
+\end{axis}
+
+% =========================================================================
+%  (b)  slowest relaxation mode P_relax
+% =========================================================================
+\begin{axis}[fig3panel, at={(\axL pt,\axBb pt)},
+             xlabel={Number of basis vectors $d$},
+             colorbar, colorbar style={
+               at={(\cbAt,0)}, anchor=south west,
+               width=\cbW pt, height=\cbH pt,
+               axis line style={line width=0.6pt},
+               tick align=inside, tickpos=both,
+               ytick={-13,-11,-9,-7,-5,-3}, minor ytick={-12,-10,-8,-6,-4},
+               yticklabels={$10^{-13}$,$10^{-11}$,$10^{-9}$,$10^{-7}$,%
+                            $10^{-5}$,$10^{-3}$},
+               tick label style={font=\figticklabel},
+               % pgfplots builds the colorbar as its own axis and ignores a
+               % label style set for it here, so the 9pt is set in the text
+               ylabel={\figaxislabel$L_2$ eigenvector error},
+               ylabel near ticks,
+             }]
+\addplot[matrix plot*, mesh/cols=32, point meta=explicit]
+  table[x=d, y=chi, meta expr={min(max(\thisrow{logerr},-13),-3)}] {fig3_prelax.dat};
+\addplot[fig3contour] table[x=d, y=chi] {fig3_prelax_c8.dat};
+\draw[figred, line width=1.1pt, dash pattern=on 4pt off 2.5pt]
+  (axis cs:32,5) -- (axis cs:32,95);
+\node[fig3clabel] at (axis cs:41.5,54.2) {$10^{-8}$};
+\node[fig3letter] at (axis description cs:0.045,0.955) {(b)};
+\node[fig3tag]    at (axis description cs:0.97,0.94) {$P_{\rm relax}$};
+\end{axis}
+
+% =========================================================================
+%  the one shared colour scale, spanning both panels
+% =========================================================================
+%  Hung off panel (b) so there is a single colorbar for the pair, then given
+%  explicit width and height so it runs from the bottom of (b) to the top of
+%  (a).  pgfplots emits it as a PDF axial shading -- vector, not a bitmap,
+%  unlike the 14x362 image in the figure this replaces.  Its axis coordinate
+%  IS log10(error), which is what makes the decade ticks exact.
+
+\end{tikzpicture}
+\end{document}

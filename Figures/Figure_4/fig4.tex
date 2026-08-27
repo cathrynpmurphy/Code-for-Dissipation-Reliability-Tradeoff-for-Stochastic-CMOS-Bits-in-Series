@@ -1,0 +1,67 @@
+% ---------------------------------------------------------------------------
+%  fig4.tex -- Figure 4 of the CMOS chain paper (fig:vdd2): Arrhenius scaling
+%  of ln<tau_err> in V_dd^2, one series per chain length, pure vector.
+%
+%  Replaces PostReviewFigures/Figure4_Vdd2Scaling.pdf, a matplotlib export
+%  243.9 x 214.9pt shown at 3.2in, i.e. rescaled by 0.943, so its nominally
+%  13pt axis labels landed on the page at 12.3pt.  Authored here at exactly
+%  \columnwidth = 246pt: include with [width=\columnwidth], no rescaling.
+%  pdfinfo reads 245.08 bp.
+%
+%  Colour means V_dd everywhere else in the paper, and V_dd is the abscissa
+%  here, so -- as in the figure being replaced -- the four chain lengths are
+%  told apart by line style and marker shape, and the panel stays monochrome.
+%
+%  Data: fig4_points.dat, fig4_fits.dat, fig4_r2.tex, all written by
+%  prep_fig4.py from ../PostReviewFigures/Figure 5 Data/tau_err.txt -- the
+%  same file Fig. 5 reads, so the two figures cannot drift apart.  The R^2 in
+%  the legend comes from prep_fig4.py, not from a hand-typed number.
+%
+%  Build: make fig4
+% ---------------------------------------------------------------------------
+\documentclass[border=0pt]{standalone}
+\input{../figstyle}
+\input{fig4_r2}
+
+\begin{document}
+\begin{tikzpicture}
+\figcanvas{\figcolwidth}{190pt}
+
+%  Axis limits are matplotlib's autoscale on the same content: the fit lines
+%  overhang the data by 0.03 in V_dd^2 either side, and the limits then carry
+%  a 5% margin on each axis.
+\begin{axis}[figaxis,
+  at={(26pt,26pt)}, anchor=south west,
+  width=217pt, height=161pt,
+  xlabel={$V_{\rm dd}^2\ [V_T^2]$},
+  ylabel={$\ln\langle\tau_{\rm err}\rangle$},
+  xmin=1.1395, xmax=2.0305, ymin=4.6043, ymax=15.5729,
+  xtick={1.2,1.4,1.6,1.8,2.0}, ytick={6,8,10,12,14},
+  xticklabel style={/pgf/number format/fixed, /pgf/number format/zerofill,
+                    /pgf/number format/precision=1},
+  legend style={at={(0.03,0.97)}, anchor=north west, cells={anchor=west},
+                row sep=1pt},
+  legend image post style={draw=none},
+]
+
+% ---- the four least-squares fits, drawn under the data -------------------
+\addplot[figgray, line width=1.1pt, solid,    forget plot] table[x=v2,y=f1] {fig4_fits.dat};
+\addplot[figgray, line width=1.1pt, dashed,   forget plot] table[x=v2,y=f3] {fig4_fits.dat};
+\addplot[figgray, line width=1.1pt, dash dot, forget plot] table[x=v2,y=f5] {fig4_fits.dat};
+\addplot[figgray, line width=1.1pt, dotted,   forget plot] table[x=v2,y=f7] {fig4_fits.dat};
+
+% ---- the production points; shape is the only channel that codes L -------
+\pgfplotsset{fig4mark/.style={only marks, mark size=2.2pt,
+    mark options={fill=black, draw=white, line width=0.5pt}}}
+\addplot[fig4mark, mark=*]         table[x=v2,y=y1] {fig4_points.dat};
+\addplot[fig4mark, mark=square*]   table[x=v2,y=y3] {fig4_points.dat};
+% triangle and diamond are sized up so the four marks read as equal weight,
+% which is how they came out of matplotlib's area-based sizing
+\addplot[fig4mark, mark=triangle*, mark size=2.9pt] table[x=v2,y=y5] {fig4_points.dat};
+\addplot[fig4mark, mark=diamond*,  mark size=2.7pt] table[x=v2,y=y7] {fig4_points.dat};
+\legend{$L=1\ (R^2=\RsqOne)$,$L=3\ (R^2=\RsqThree)$,%
+        $L=5\ (R^2=\RsqFive)$,$L=7\ (R^2=\RsqSeven)$}
+\end{axis}
+
+\end{tikzpicture}
+\end{document}

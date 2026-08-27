@@ -1,0 +1,96 @@
+
+THE ORGANIZING PRINCIPLE
+
+Work backwards from the figures. For every figure in the paper, someone should
+be able to download the deposit and regenerate that figure. That gives a chain
+per figure, and everything in the chain has to be present:
+
+  figure  <-  the script that draws it
+          <-  the data that script plots
+          <-  the script that turned raw data into that plotted data
+          <-  the raw data
+          <-  the software that produced the raw data
+
+The rule for each link:
+
+  1. The plotting script must be in the deposit.
+  2. Every data file the plotting script opens must be in the deposit.
+  3. Every analysis script that produces one of those data files must be in
+     the deposit.
+  4. Raw data goes in if it is small. If it is large, it stays out.
+  5. The scripts that generate the raw data go in either way -- including when
+     the raw data itself is also included. This is the one that gets skipped,
+     and it is the one that matters most, because it is what lets someone
+     rerun the calculation rather than just redraw our plot.
+  6. Every piece of software the scripts call goes in, or is pinned by version
+     if it is a public package.
+
+You set the threshold in rule 4. Pick a number, apply it consistently, and
+say in the README what it was and which files fell on the excluded side.
+
+
+WHAT'S MISSING RIGHT NOW
+
+Two gaps I can name from the outside:
+
+  * The GMRES reference solver is not in the deposit. Figure 3 is the paper's
+    entire convergence argument -- it plots the L2 error of the reduced-basis
+    eigenvectors against a reference converged with a sparse solver at L=3.
+    Neither the sparse solve nor the comparison is in any released version.
+    That is the one figure a skeptical referee would try to reproduce, and
+    right now they can't.
+
+  * No figure-generating scripts at all. Figures 1-5 are built from TikZ and
+    pgfplots sources with Python prep scripts (FigureSources/prep_fig*.py in
+    the paper repo), reading .dat files derived from the raw exports. None of
+    that is deposited.
+
+Two items from the old notes are also still open, and they belong in the
+README rather than in the paper:
+
+  * Sweep counts. The drivers run ncycles=200 x StepNum=5 = 1000 sweeps per
+    eigenvector; the paper reports 5400 for the worst case (L=7,
+    Vdd/VT=1.4, ~260 CPU-hours). Either ship the production driver or explain
+    the difference.
+
+  * The warm-start ramp. The paper says the retained basis goes 12 -> 32 with
+    the bond dimension growing as the two-site sweeps proceed. The released
+    drivers hard-code nbasis=12 and maxdim=100. Was the ramp single-step or
+    gradual? The README should state the actual schedule.
+
+
+A SUGGESTION ON HOW TO DO IT
+
+This is a good task for Claude Code, and better suited to it than to doing it
+by hand, because the check is mechanical rather than a matter of judgment.
+Point it at the paper repo and the code repo together and have it:
+
+  * pull every \includegraphics target out of the manuscript;
+  * trace each one back through the chain above, script by script, by reading
+    what each script actually opens rather than what its comments claim;
+  * report the closure -- every file reachable from a figure -- and, more
+    usefully, report what is NOT closed, i.e. every data file that no
+    deposited script produces and every script that no deposited software
+    supports;
+  * propose a directory layout for the deposit and a README that walks a
+    reader from "I want Figure 3" to the command that regenerates it.
+
+Then you decide what's in and what's out, especially on rule 4. The tracing is
+the tedious part and the part a machine does well; the size threshold and what
+counts as raw are yours.
+
+One thing worth insisting on: have it verify by running, not by reading. A
+script that looks like it regenerates Figure 4 and doesn't is worse than an
+absent script, because it's a promise. If a figure can be redrawn end to end
+from a clean checkout of the deposit, it's done. If it can't, it isn't.
+
+
+WHAT I NEED BACK
+
+Just the version DOI once v4 is published, so we can note it, plus a heads-up
+if the size threshold means a figure can't be regenerated from the deposit
+alone. If that happens for any figure, I'd rather know before the proofs than
+after, because we may want to soften the availability statement.
+
+Thanks,
+Todd

@@ -1,0 +1,212 @@
+% ---------------------------------------------------------------------------
+%  fig1.tex -- Figure 1 of the CMOS chain paper, pure vector.
+%
+%  Replaces NewFigures/Figure1CMOS_v8.pdf (a PowerPoint export: 22 raster
+%  objects, the density panel a 370x370 indexed bitmap at 218 ppi, and a
+%  792x612 MediaBox hiding a superseded draft outside the CropBox).
+%
+%  Authored at exactly 510pt = \textwidth, so \includegraphics does no
+%  rescaling: [width=\textwidth] in a figure*.  pdfinfo reads 508.09 bp.
+%
+%  Geometry note.  Every coordinate below is quoted in the ORIGINAL figure's
+%  own units -- the 610.374 x 153.033 pt CropBox of Figure1CMOS_v8.pdf, read
+%  out of its content stream -- and the x/y unit vectors carry the single
+%  factor 510/610.374 = 0.8355542 that maps that space onto this canvas.  So
+%  the numbers here can be checked one by one against the file being replaced.
+%  Font sizes and line widths are absolute pt and so are NOT scaled.
+%
+%  Build: make fig1   (needs fig1_heatmap.dat, fig1_marginal.dat from
+%  prep_fig1.py).
+% ---------------------------------------------------------------------------
+\documentclass[border=0pt]{standalone}
+\input{../figstyle}
+
+% one x/y unit = one unit of the original figure's coordinate space
+\newcommand{\figone}{0.8355542pt}
+
+% ---- the MOSFET symbol ---------------------------------------------------
+%  #1 x of the three-segment channel bar, #2 x of the gate plate (the two may
+%  be in either order, which is how the pair gets mirrored), #3..#5 y of the
+%  three channel stubs (far, bulk, near), #6 x the stubs run to, #7 y of the
+%  gate lead, #8 x the gate lead runs to, #9 bulk-arrow tip x.
+\newcommand{\figplate}[3]{\draw[figwire, line width=1.8pt] (#1,#2) -- (#1,#3);}
+\begin{document}
+\begin{tikzpicture}[x=\figone, y=\figone, every node/.style={inner sep=0pt}]
+\figcanvas{\figfullwidth}{128pt}
+
+% =========================================================================
+%  1.  left panel -- the k=0 NOT gate
+% =========================================================================
+\fill[figshadeA] (3.31,3.14) rectangle (129.00,150.50);
+
+% supply and node rails, all on x = 56.6 as three disjoint segments
+\draw[figarrow] (56.6,103.43) -- (56.6,137.98);              % +V_dd
+\draw[figarrow] (56.6,52.63)  -- (56.6,18.06);               % -V_dd
+\draw[figwire]  (56.6,58.97)  -- (56.6,97.72);               % node rail
+\node[anchor=base, font=\figaxislabel] at (58.0,141.6) {$V_{\rm dd}$};
+\node[anchor=base, font=\figaxislabel] at (56.0,8.6)   {$-V_{\rm dd}$};
+
+% PMOS (above) and NMOS (below): channel bar at 71.91, gate plate at 76.01
+\draw[figwire] (71.91,93.18) -- (71.91,114.76);
+\figplate{76.01}{93.18}{114.68}
+\draw[figwire] (56.6,112.24) -- (71.91,112.24);
+\draw[figwire] (56.6,104.41) -- (71.91,104.41);
+\draw[figwire,-{Triangle[length=4pt,width=4pt]}] (71.91,104.41) -- (64.0,104.41);
+\draw[figwire] (56.6,96.65)  -- (71.91,96.65);
+\draw[figwire] (76.01,113.44) -- (99.02,113.44);
+
+\draw[figwire] (71.91,41.40) -- (71.91,62.98);
+\figplate{76.01}{41.40}{62.91}
+\draw[figwire] (56.6,60.10) -- (71.91,60.10);
+\draw[figwire] (56.6,51.69) -- (71.91,51.69);
+\draw[figwire,-{Triangle[length=4pt,width=4pt]}] (63.9,51.69) -- (71.0,51.69);
+\draw[figwire] (56.6,44.05) -- (71.91,44.05);
+\draw[figwire] (76.01,42.31) -- (99.02,42.31);
+
+\node[anchor=base, font=\figannot] at (85.5,119.0) {PMOS};
+\node[anchor=base, font=\figannot] at (85.5,30.5)  {NMOS};
+
+% output rail and the two nodes
+\draw[figwire] (99.02,42.31) -- (99.02,113.44);
+\draw[figwire] (36.21,75.5) -- (56.6,75.5);
+\draw[figwire] (99.02,75.5) -- (117.82,75.5);
+\fill[fignodeA] (36.21,75.5)  circle[radius=3.08pt];
+\fill[fignodeB] (117.82,75.5) circle[radius=3.08pt];
+\node[fignodeA, anchor=base, font=\figaxislabel] at (36.21,63.2)  {$v_0$};
+\node[fignodeB, anchor=base, font=\figaxislabel] at (117.82,63.2) {$v_1$};
+
+% rate arrows: up on the left of each pair, down on the right
+\draw[figarrow] (27.7,101.0) -- (27.7,132.5);
+\draw[figarrow] (32.0,132.5) -- (32.0,101.0);
+\draw[figarrow] (27.7,21.0)  -- (27.7,52.5);
+\draw[figarrow] (32.0,52.5)  -- (32.0,21.0);
+\node[anchor=base east, font=\figaxislabel] at (26.0,109.6)  {$\lambda^{{\rm d},0}_{+}$};
+\node[anchor=base west, font=\figaxislabel] at (33.9,109.6)  {$\lambda^{{\rm u},0}_{+}$};
+\node[anchor=base east, font=\figaxislabel] at (26.0,31.6)   {$\lambda^{{\rm d},0}_{-}$};
+\node[anchor=base west, font=\figaxislabel] at (33.9,31.6)   {$\lambda^{{\rm u},0}_{-}$};
+
+% =========================================================================
+%  2.  middle panel -- the CMOS unit as two logic gates
+% =========================================================================
+\fill[figshadeB] (162.97,82.05) rectangle (208.83,126.94);
+\fill[figshadeA] (177.18,24.52) rectangle (223.04,69.41);
+\draw[figwire] (159.18,45.43) rectangle (226.77,105.81);
+\fill[white]   (168.56,88.54) -- (168.56,123.08) -- (205.39,105.81) -- cycle;
+\draw[figwire] (168.56,88.54) -- (168.56,123.08) -- (205.39,105.81) -- cycle;
+\fill[white]   (181.27,28.16) -- (181.27,62.69) -- (218.10,45.43) -- cycle;
+\draw[figwire] (181.27,28.16) -- (181.27,62.69) -- (218.10,45.43) -- cycle;
+% straddle each triangle's centre line, where it is widest
+\node[figblueA, anchor=base west, font=\figannot] at (170.00,102.5) {$k=1$};
+\node[figgray,  anchor=base west, font=\figannot] at (183.00,42.1)  {$k=0$};
+\draw[figwire] (143.65,75.5) -- (159.18,75.5);
+\draw[figwire] (226.77,75.5) -- (242.44,75.5);
+\fill[fignodeA] (143.65,75.5) circle[radius=3.08pt];
+\fill[fignodeB] (242.44,75.5) circle[radius=3.08pt];
+\node[fignodeA, anchor=base, font=\figaxislabel] at (143.65,63.2) {$v_0$};
+\node[fignodeB, anchor=base, font=\figaxislabel] at (242.44,63.2) {$v_1$};
+
+% leaders: left panel <-> the k=0 gate, the k=1 gate <-> right panel
+\draw[figlead] (129.00,4.07)   -- (177.97,25.19);
+\draw[figlead] (208.68,126.94) -- (255.95,148.64);
+
+% =========================================================================
+%  3.  right panel -- the k=1 NOT gate, transistor pair mirrored
+% =========================================================================
+\fill[figshadeB] (257.96,3.14) rectangle (382.43,149.19);
+
+\draw[figarrow] (328.88,103.43) -- (328.88,137.61);          % +V_dd
+\draw[figarrow] (328.88,52.63)  -- (328.88,17.12);           % -V_dd
+\draw[figwire]  (328.88,57.65)  -- (328.88,96.39);           % node rail
+\node[anchor=base, font=\figaxislabel] at (330.3,141.0) {$V_{\rm dd}$};
+\node[anchor=base, font=\figaxislabel] at (328.3,7.6)   {$-V_{\rm dd}$};
+
+% mirrored: gate plate at 309.07, channel bar at 313.19
+\figplate{309.07}{92.31}{113.81}
+\draw[figwire] (313.19,92.31) -- (313.19,113.89);
+\draw[figwire] (313.19,111.34) -- (328.88,111.34);
+\draw[figwire] (313.19,103.43) -- (328.88,103.43);
+\draw[figwire,-{Triangle[length=4pt,width=4pt]}] (313.19,103.43) -- (321.1,103.43);
+\draw[figwire] (313.19,95.33)  -- (328.88,95.33);
+\draw[figwire] (286.00,112.83) -- (309.07,112.83);
+
+\figplate{309.07}{40.71}{62.22}
+\draw[figwire] (313.19,40.38) -- (313.19,61.97);
+\draw[figwire] (313.19,58.60) -- (328.88,58.60);
+\draw[figwire] (313.19,50.67) -- (328.88,50.67);
+\draw[figwire,-{Triangle[length=4pt,width=4pt]}] (321.1,50.67) -- (314.0,50.67);
+\draw[figwire] (313.19,42.73) -- (328.88,42.73);
+\draw[figwire] (286.00,41.70) -- (309.07,41.70);
+
+\node[anchor=base, font=\figannot] at (307.0,119.0) {PMOS};
+\node[anchor=base, font=\figannot] at (307.0,30.5)  {NMOS};
+
+\draw[figwire] (286.00,41.70) -- (286.00,112.83);
+\draw[figwire] (267.69,75.5) -- (286.00,75.5);
+\draw[figwire] (328.88,75.5) -- (348.96,75.5);
+\fill[fignodeA] (267.69,75.5) circle[radius=3.08pt];
+\fill[fignodeB] (348.96,75.5) circle[radius=3.08pt];
+\node[fignodeA, anchor=base, font=\figaxislabel] at (267.69,63.2) {$v_0$};
+\node[fignodeB, anchor=base, font=\figaxislabel] at (348.96,63.2) {$v_1$};
+
+\draw[figarrow] (355.1,101.0) -- (355.1,132.5);
+\draw[figarrow] (359.4,132.5) -- (359.4,101.0);
+\draw[figarrow] (355.1,21.0)  -- (355.1,52.5);
+\draw[figarrow] (359.4,52.5)  -- (359.4,21.0);
+\node[anchor=base east, font=\figaxislabel] at (353.4,109.6) {$\lambda^{{\rm d},1}_{+}$};
+\node[anchor=base west, font=\figaxislabel] at (361.3,109.6) {$\lambda^{{\rm u},1}_{+}$};
+\node[anchor=base east, font=\figaxislabel] at (353.4,31.6)  {$\lambda^{{\rm d},1}_{-}$};
+\node[anchor=base west, font=\figaxislabel] at (361.3,31.6)  {$\lambda^{{\rm u},1}_{-}$};
+
+% =========================================================================
+%  4.  data panel -- single-unit steady state, and its anti-diagonal cut
+% =========================================================================
+%  65 x 65 vector cells: matrix plot* emits one filled rectangle per cell,
+%  centred on its coordinate, so the panel spans -3.25 .. 3.25 (65 cells of
+%  0.1) exactly as the original's pcolormesh did.  No bitmap anywhere.
+% pgfplots' anchor arithmetic misbehaves under non-default x/y unit vectors,
+% so the two data axes go in a default-unit scope and carry absolute pt
+% positions; the original-figure units they came from are in the comments.
+\draw[figgray, line width=1.4pt] (560.36,22.75) -- (560.36,144.04);
+\node[figgray, font=\figannot, rotate=-90] at (552.7,123.0) {$v_0=-v_1$};
+\node[anchor=base,      font=\figaxislabel] at (484.0,4.3)  {$v_1$};  % xlabel
+\node[anchor=east,      font=\figaxislabel] at (397.0,84.5) {$v_0$};  % ylabel
+
+\begin{scope}[x=1cm, y=1cm]
+\begin{axis}[figdensity,
+  at={(353.399pt,18.215pt)}, anchor=south west,   % orig (422.95, 21.80)
+  axis on top,                              % 4225 filled cells would otherwise
+                                            % bury the frame and the inward ticks
+  width=102.00pt, height=102.94pt,                % orig 122.07 x 123.19
+  xmin=-3.25, xmax=3.25, ymin=-3.25, ymax=3.25,
+  xtick={-3.2,-1.6,0,1.6,3.2},              % nine tick marks as in the original,
+  ytick={-3.2,-1.6,0,1.6,3.2},              % but only five carry a label: at the
+  minor xtick={-2.4,-0.8,0.8,2.4},          % mandated 8pt, nine \"-3.2\"s would
+  minor ytick={-2.4,-0.8,0.8,2.4},          % need 188pt of a 102pt axis
+  xticklabel style={/pgf/number format/fixed, /pgf/number format/precision=1},
+  yticklabel style={/pgf/number format/fixed, /pgf/number format/precision=1},
+  % Ticks point inward, so without an explicit shift the labels sit against
+  % the frame and the two "-3.2"s collide in the bottom-left corner.  The
+  % canvas leaves only 2.9pt below the xlabel, hence the asymmetry: 1.5pt
+  % down, 2.5pt out to the left where the gap to the schematic is wide.
+  xticklabel shift=1.5pt,
+  yticklabel shift=2.5pt,
+  point meta max=0.006747483411018358,
+]
+\addplot[matrix plot*, mesh/cols=65, point meta=explicit]
+   table[x=x, y=y, meta=z] {fig1_heatmap.dat};
+\addplot[white, figcurve, forget plot] coordinates {(-3.25,3.25) (3.25,-3.25)};
+\node[white, font=\figannot, rotate=-45, anchor=north west]
+   at (axis cs:1.35,-1.35) {$v_0=-v_1$};
+\end{axis}
+
+\begin{axis}[
+  at={(468.166pt,18.215pt)}, anchor=south west, scale only axis, hide axis,
+  width=36pt, height=102.94pt,                    % orig zero line at 560.36
+  xmin=0, xmax=1, ymin=-3.25, ymax=3.25,
+]
+\addplot[figblueA, figemph] table[x=p, y=v0] {fig1_marginal.dat};
+\end{axis}
+\end{scope}
+
+\end{tikzpicture}
+\end{document}

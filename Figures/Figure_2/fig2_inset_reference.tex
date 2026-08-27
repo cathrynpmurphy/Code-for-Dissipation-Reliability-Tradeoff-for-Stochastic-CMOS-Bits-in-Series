@@ -1,0 +1,26 @@
+\documentclass[border=2pt]{standalone}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\definecolor{hiA}{HTML}{1F4E9C}
+\definecolor{hiB}{HTML}{3C8DBC}
+\definecolor{loC}{HTML}{9CC7A9}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[
+  width=6.0cm, height=4.0cm, scale only axis,
+  xlabel={$v_L/v_e$}, ylabel={$\varphi_j(v_L/v_e)$},
+  xmin=-32, xmax=32, xtick={-30,-20,-10,0,10,20,30},
+  ymin=-0.075, ymax=0.075,
+  tick label style={font=\scriptsize}, label style={font=\small},
+  axis line style={semithick}, tick align=outside,
+  legend style={font=\scriptsize, draw=none, fill=none, at={(0.98,0.02)}, anchor=south east},
+]
+\addplot[loC,     thin,      smooth] table[x=x,y=f4] {basis.dat};
+\addplot[loC,     thin,      smooth] table[x=x,y=f3] {basis.dat};
+\addplot[loC,     thin,      smooth] table[x=x,y=f2] {basis.dat};
+\addplot[hiB,     very thick,smooth] table[x=x,y=f1] {basis.dat};
+\addplot[hiA,     very thick,smooth] table[x=x,y=f0] {basis.dat};
+\legend{,,,$\varphi_1$,$\varphi_0$}
+\end{axis}
+\end{tikzpicture}
+\end{document}

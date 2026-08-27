@@ -1,0 +1,335 @@
+% ---------------------------------------------------------------------------
+%  fig2.tex -- Figure 2 of the CMOS chain paper: the tensor-network method.
+%
+%  Replaces NewFigures/Figure2CMOSVertical7.pdf, a PowerPoint export set in
+%  Cambria Math / Arial / Aptos / DejaVuSans, whose MediaBox also carries a
+%  superseded draft of the whole diagram outside the CropBox.
+%
+%  Authored at exactly \columnwidth = 246pt, so \includegraphics applies no
+%  scaling: include with [width=\columnwidth].  The original was 204 x 427pt
+%  shown at 162.6pt wide; re-proportioned here by lifting the basis-function
+%  inset out of the vertical stack and setting it beside the eigenvalue-
+%  equation / MPS stage, which it annotates as a zoom callout.
+%
+%  Data: fig2_basis.dat, written by prep_fig2.py from
+%  ../PostReviewFigures/Figure 2 Data/BasisVectors{X,Y}Axis.txt
+%
+%  revB/C: the change of basis W -> U W U^dagger is DRAWN.  Two operators now
+%  carry two colours: the REDUCED MPO (physical dimension d) is teal, the FULL
+%  MPO (physical dimension D) is blue.  Three sites show only the reduced
+%  tensor; the rightmost site is opened up to show what that tensor is, as a
+%  teal-stroked box enclosing U^dagger, the full blue MPO, and U.  The same
+%  object therefore appears at two zoom levels, which is what supplies the
+%  identity without writing one out.
+%
+%  revD: RE-LAID OUT, not rebuilt.  Same tensors, boxes, labels and curves as
+%  revC, in four bands top to bottom:
+%      1. the contraction W|P_i>, with the operator note and the basis inset
+%         in the right-hand column;
+%      2. "= mu_i" and the result MPS, shifted right to x = 110..232;
+%      3. the CMOS chain, directly BENEATH the result MPS and sharing its
+%         abscissae exactly, so a chain node sits under the MPS site that
+%         carries it;
+%      4. the two DMRG variants and their eigenpairs, at the far left, reached
+%         by arrows fanning down-left out of the equation.
+%
+%  Why the chain moved to the bottom.  It used to run across the top, and its
+%  nodes did not sit above the matching tensor sites, so the correspondence was
+%  carried by repeating v_0 ... v_L on both the chain and the result MPS.  That
+%  second set of labels was wrong: after U^dagger those legs run over the d=32
+%  RETAINED COEFFICIENTS, not over a node voltage.  The only legs in the figure
+%  that legitimately run over voltages are the two inner sandwich legs marked
+%  D=65.  Setting the chain directly under the MPS lets ALIGNMENT carry the
+%  correspondence -- "this tensor is that node", true in any basis -- and the
+%  duplicate labels are gone.  The chain is back on its unstretched geometry
+%  (units 22pt wide on a 44/34/44 site pitch), shifted +100 to sit under the
+%  result MPS; the stretched full-width version revC used is not compatible
+%  with alignment, which is the stronger claim.
+%
+%  Orientation.  \tilde{W}_{ab} = sum_{vv'} U_{av} W_{vv'} U^dagger_{v'b} with
+%  a, b the d-indices; acting on a reduced-space vector b is the INPUT index
+%  and a the OUTPUT.  Here the MPS sits above the operator and the free legs
+%  point down, so the input leg is the upper one: U^dagger faces the MPS and U
+%  sits on the lower free leg.  Reading the site DOWNWARDS therefore spells
+%  U^dagger W U, while the operator identity written beside it is
+%  W -> U W U^dagger.  Both are correct; they are the same statement read in
+%  opposite directions.  (An earlier version of this comment said the site
+%  reads U W U^dagger.  It does not; the drawing was always right.)
+%
+%  The zoom callout is anchored to the lower U box, not to the MPS site,
+%  because the rows of U are exactly what the inset plots.  With the inset now
+%  level with the sandwich the callout is a short 17pt wedge rather than the
+%  long diagonal it used to travel.
+%
+%  NOTE on units: this picture sets x=1pt,y=1pt so bare coordinates are
+%  points, but pgfplots' own at/width/height keys must still carry explicit
+%  units -- unitless values there are not read in the picture's x/y vectors.
+% ---------------------------------------------------------------------------
+\documentclass[border=0pt]{standalone}
+\input{../figstyle}
+\usepackage{amssymb}   % \mathbb, as used for \mathbb{W} in the body text
+
+\begin{document}
+\begin{tikzpicture}[x=1pt,y=1pt]
+% Content occupies y in [113.1,377.8] -- measured with gs -sDEVICE=bbox on a
+% build whose box was opened to (0,0)-(\figcolwidth,500), then padded by ~2pt
+% each way.  It sits in that band rather than starting at the origin, so the
+% box is pinned explicitly instead of with \figcanvas.  Re-measure and update
+% these two numbers if the vertical extent of anything changes.  Result:
+% 246 x 269pt, which pdfinfo reports as 245.08 x 268.00 bp.
+\useasboundingbox (0,111) rectangle (\figcolwidth,380);
+
+% ===========================================================================
+%  local drawing idioms.  Geometry only: every colour, weight and type size
+%  is taken from figstyle.tex, never re-declared here.
+% ===========================================================================
+\tikzset{
+  figannot/.style={font=\figannot, inner sep=1pt},
+  figemph/.style={/pgfplots/figemph},
+  % MPS tensor: grey circle.
+  mpsnode/.style={circle, draw=black, line width=0.9pt, fill=black!12,
+                  minimum size=16pt, inner sep=0pt},
+  % REDUCED MPO tensor (physical dimension d): teal rounded square.  This is
+  % the object the reader meets first, at the three unexpanded sites.
+  %  Drawn with the ENCLOSURE's aspect and corner radius, not as a square, so
+  %  that the closed tensor and the opened one read as the same object.
+  mpored/.style={rounded corners=5pt, draw=figtealA, line width=0.9pt,
+                 fill=figtealB!75, minimum width=18pt, minimum height=34pt,
+                 inner sep=0pt},
+  % FULL MPO tensor (physical dimension D): blue rounded square.  It appears
+  % only inside the expanded site, between U^dagger and U.
+  mpofull/.style={rounded corners=4pt, draw=figblueA, line width=0.9pt,
+                  fill=figblueB!85, minimum size=18pt, inner sep=0pt},
+  % the box enclosing U^dagger / full MPO / U.  Stroked in the reduced-MPO
+  % colour and filled opaquely, so it reads as the SAME object as the teal
+  % squares at the other three sites -- drawn open instead of closed.
+  mporedbox/.style={rounded corners=5pt, draw=figtealA, line width=0.9pt,
+                    fill=figtealB!25},
+  bond/.style={line width=1.4pt},              % contraction line
+  % the change-of-basis isometry U: a rank-2 box, sharp-cornered, neutral grey
+  % and white-filled so it reads as neither an MPS circle nor an MPO rounded
+  % square.  Opaque, so it breaks the leg it sits on and leaves a visible stub
+  % either side.  The fixed text height/depth keeps U and U^dagger on a common
+  % baseline.
+  ubox/.style={draw=figgray, line width=0.9pt, fill=white,
+               minimum width=16pt, minimum height=11pt, inner sep=0pt,
+               text height=5.5pt, text depth=0pt, font=\figannot},
+  callout/.style={figblueB!45, line width=0.7pt},
+  fatarrow/.style={-{Stealth[length=7pt,width=6pt]}, line width=2.2pt,
+                   figblueA},
+}
+
+% cross-coupled inverter pair.  #1 = x of box left edge, #2 = y of the wire.
+% Box 22 x 26pt; each triangle has its vertical base on one side edge and its
+% apex on the opposite horizontal edge, so the pair maps onto itself under a
+% 180-degree rotation about the box centre.  White fill hides the box edge
+% running behind each triangle, as in the original.
+\newcommand{\cmosunit}[2]{%
+  \begin{scope}[shift={(#1,#2)}]
+    \draw[figwire] (0,-13) rectangle (22,13);
+    \draw[figwire,fill=white] (2.2,20.8) -- (2.2,5.2) -- (14.7,13) -- cycle;
+    \draw[figwire,fill=white] (19.8,-20.8) -- (19.8,-5.2) -- (7.3,-13) -- cycle;
+  \end{scope}}
+
+\newcommand{\nodedot}[2]{\fill (#1,#2) circle[radius=1.9pt];}
+
+% three-dot ellipsis centred at (#1,#2)
+\newcommand{\ellip}[2]{%
+  \foreach \dx in {-3.6,0,3.6}{\fill ({#1+\dx},#2) circle[radius=1.15pt];}}
+
+% a line broken by an ellipsis: #1 style, #2 x1, #3 x2, #4 y, #5 x of the
+% ellipsis.  \brokenline centres it; \brokenlineat takes it explicitly, which
+% the operator row needs -- the enclosure eats into the gap from the right, so
+% an ellipsis centred between the two SITES would run into its wall.
+\newcommand{\brokenlineat}[5]{%
+  \draw[#1] (#2,#4) -- ({#5-5.6},#4);
+  \draw[#1] ({#5+5.6},#4) -- (#3,#4);
+  \ellip{#5}{#4}}
+\newcommand{\brokenline}[4]{%
+  \pgfmathsetmacro{\bmid}{(#2+#3)/2}%
+  \brokenlineat{#1}{#2}{#3}{#4}{\bmid}}
+
+% ---- the four site abscissae of the contraction (band 1) -----------------
+\def\xA{10}\def\xB{54}\def\xC{88}\def\xD{132}
+\def\xcol{155}                      % left edge of the right-hand column
+
+% ---- band 2 and 3 share ONE set of abscissae -----------------------------
+%  The result MPS and the chain beneath it are the same four sites, so they
+%  are drawn from the same numbers.  This is the alignment that replaced the
+%  duplicated v_0 ... v_L labels; do not let the two rows drift apart.
+%  The pitch is 46/34/46 rather than the tensor rows' 44/34/44: each elided
+%  span has to hold a 22pt inverter unit AND an ellipsis, and at 44 the three
+%  ellipsis dots ended 1.35pt from the next node dot -- the same gap they keep
+%  from each other -- so the node read as a fourth omitted-unit dot.  At 46 the
+%  gap is 2.85pt against a dot that is also 1.6x larger, and it separates.
+%  The right-hand site is at 236: its MPS circle reaches x=244, inside 246.
+\def\rA{110}\def\rB{156}\def\rC{190}\def\rD{236}
+
+% ---- the expanded site: enclosure and the stations of its physical leg ----
+%  Reading downwards: MPS (leg dimension d) -- U^dagger -- full MPO (leg
+%  dimension D) -- U -- free physical leg (dimension d).  The enclosure spans
+%  the three operator boxes; the MPS above it and the free leg below it stay
+%  outside, because they are not part of the reduced tensor.
+\def\ymps{362}\def\yUa{334}\def\ympo{310}\def\yUb{287}\def\yleg{265}
+\def\encL{115}\def\encR{149}\def\encT{345}\def\encB{276}
+%  The stubs of bare leg between boxes are 9-11pt, not the 5.5pt they were:
+%  a dimension label set beside the leg needs a segment it can sit level with,
+%  and at 8pt type that segment has to be about 9pt of clear line.
+\def\xdim{128}                      % right edge of the leg-dimension labels
+
+% ===========================================================================
+%  1.  the eigenvalue problem, drawn.  The MPS (grey) contracted with the
+%      reduced MPO (teal); the rightmost site opened up to show that the
+%      reduced tensor is U^dagger W U.
+% ===========================================================================
+% The enclosure goes down FIRST, as a background: its fill is opaque, so any
+% bond or leg drawn before it would be erased.  Everything the box contains --
+% the virtual bond entering from the left, the physical leg running through --
+% is then drawn over it, which is also how it should read: the legs pierce the
+% box.  No pale highlight column here; the teal box is itself the marker for
+% which site has been opened up.
+\draw[mporedbox] (\encL,\encB) rectangle (\encR,\encT);
+\brokenline{bond}{\xA}{\xB}{\ymps}
+\draw[bond] (\xB,\ymps) -- (\xC,\ymps);
+\brokenline{bond}{\xC}{\xD}{\ymps}
+\brokenline{bond}{\xA}{\xB}{\ympo}
+\draw[bond] (\xB,\ympo) -- (\xC,\ympo);
+\brokenlineat{bond}{\xC}{\xD}{\ympo}{106}
+% one continuous vertical line per site: the opaque tensors laid over it below
+% carve out the MPS-MPO contraction, the U sandwich and the free physical leg
+\foreach \x in {\xA,\xB,\xC,\xD}{%
+  \draw[bond] (\x,\ymps) -- (\x,\yleg);
+  \nodedot{\x}{\yleg}}
+\foreach \x in {\xA,\xB,\xC}{%
+  \node[mpsnode] at (\x,\ymps) {};
+  \node[mpored]  at (\x,\ympo) {};}
+\node[mpsnode] at (\xD,\ymps) {};
+\node[mpofull] at (\xD,\ympo) {};
+
+% ---- the change of basis, drawn as the rank-2 tensor it is ---------------
+%  U is a d x D isometry, so it is a rank-2 box sitting ON the physical leg:
+%  U^dagger takes the MPS's d-dimensional index up to the full MPO's D, and U
+%  brings the output index back down.  Labels sit to the LEFT of the leg; the
+%  strip to its right is kept clear for the zoom callout into the inset.
+\node[ubox] at (\xD,\yUa) {$U^\dagger$};
+\node[ubox] at (\xD,\yUb) {$U$};
+\node[figannot,anchor=east] at (\xdim,348.5) {$d$};
+\node[figannot,anchor=east] at (\xdim,324)   {$D$};
+\node[figannot,anchor=east] at (\xdim,297)   {$D$};
+\node[figannot,anchor=east] at (\xdim,272.5) {$d$};
+\node[figannot,anchor=north west,align=left,inner sep=0pt] at (\xcol,378)
+  {at every site\\[1pt]
+   $\textcolor{figblueA}{\widehat{\mathbb{W}}} \to
+    U\textcolor{figblueA}{\widehat{\mathbb{W}}}U^\dagger$\\[1pt]
+   $D{=}65 \to d{=}32$};
+
+% ===========================================================================
+%  2.  the equals sign and the eigenvector, on ONE line.  The two sides ARE
+%      the eigenvalue equation: above is W|P_i>, here is mu_i |P_i>.  The
+%      symbolic line that used to sit between them has been deleted -- the
+%      diagram states it once, and writing it again in symbols is the same
+%      claim in two registers.
+%
+%      The result MPS carries no v_0 ... v_L labels.  Its legs run over the d
+%      retained coefficients, not over node voltages; which node each site IS
+%      is said by the chain drawn directly beneath it.
+% ===========================================================================
+\def\yres{235}
+% anchored EAST at 100, not west at 78: the first MPS circle reaches x=102
+% and is drawn opaquely afterwards, so a west-anchored label loses its
+% subscript underneath it.
+\node[anchor=base east] at (100,\yres) {$=\ \textcolor{figblueA}{\mu_i}$};
+\brokenline{bond}{\rA}{\rB}{\yres}
+\draw[bond] (\rB,\yres) -- (\rC,\yres);
+\brokenline{bond}{\rC}{\rD}{\yres}
+\foreach \x in {\rA,\rB,\rC,\rD}{%
+  \draw[bond] (\x,\yres) -- (\x,215);
+  \nodedot{\x}{215}}
+\foreach \x in {\rA,\rB,\rC,\rD}{\node[mpsnode] at (\x,\yres) {};}
+\node[figannot,anchor=south] at (173,238) {$\chi$};
+\node[figannot,anchor=west]  at (193,223) {$d$};
+
+% ===========================================================================
+%  3.  the CMOS chain, directly beneath the result MPS and on its abscissae.
+%      Three cross-coupled inverter pairs, four nodes.  The triangles reach
+%      y = \ywire + 20.8 = 205.8, against the MPS free-leg dots at 215.
+% ===========================================================================
+\def\ywire{185}
+%  Stubs of bare wire: 5pt at the two outer nodes, 6pt at the two inner ones,
+%  leaving 19pt for each elision.  Unit 2 is centred in the unelided span.
+\draw[figwire] (\rA,\ywire) -- (115,\ywire);
+\cmosunit{115}{\ywire}
+\brokenline{figwire}{137}{\rB}{\ywire}
+\draw[figwire] (\rB,\ywire) -- (162,\ywire);
+\cmosunit{162}{\ywire}
+\draw[figwire] (184,\ywire) -- (\rC,\ywire);
+\brokenline{figwire}{\rC}{209}{\ywire}
+\cmosunit{209}{\ywire}
+\draw[figwire] (231,\ywire) -- (\rD,\ywire);
+\foreach \x in {\rA,\rB,\rC,\rD}{\nodedot{\x}{\ywire}}
+% the ONLY place v_0 ... v_L appear: on the chain, where they are voltages.
+\node[figannot,anchor=north] at (\rA,160) {$v_0$};
+\node[figannot,anchor=north] at (\rB,160) {$v_i$};
+\node[figannot,anchor=north] at (\rC,160) {$v_{i+1}$};
+\node[figannot,anchor=north] at (\rD,160) {$v_L$};
+
+% ===========================================================================
+%  4.  zoom callout: the rows of U, i.e. the retained basis it projects onto.
+%      Set beside the sandwich, level with it, so the wedge is short and the
+%      DMRG arrows below are free to descend from the equation.
+% ===========================================================================
+\draw[callout] (141,292.5) -- (157,338);
+\draw[callout] (141,281.5) -- (157,274);
+
+\begin{axis}[figaxis,
+  at={(158pt,272pt)}, anchor=south west,
+  width=76pt, height=68pt,
+  xlabel={$v_L/v_e$},
+  xmin=-33, xmax=33, xtick={-30,0,30},
+  ymin=-0.072, ymax=0.072, ytick=\empty,
+  xlabel shift=-2pt,
+]
+% the vertical scale of an orthonormalised basis vector is convention, so the
+% y ticks and label carry no information; dropped, and the width recovered.
+\draw[figgray,line width=0.4pt] (axis cs:-33,0) -- (axis cs:33,0);
+\addplot[figgreen,line width=0.7pt,smooth] table[x=x,y=f4] {fig2_basis.dat};
+\addplot[figgreen,line width=0.7pt,smooth] table[x=x,y=f3] {fig2_basis.dat};
+\addplot[figgreen,line width=0.7pt,smooth] table[x=x,y=f2] {fig2_basis.dat};
+\addplot[figblueB,figemph,smooth]          table[x=x,y=f1] {fig2_basis.dat};
+\addplot[figblueA,figemph,smooth]          table[x=x,y=f0] {fig2_basis.dat};
+\end{axis}
+
+% ===========================================================================
+%  5.  the two DMRG variants, in the left margin the chain leaves free, each
+%      landing on the eigenvector it returns and its eigenvalue.  The arrows
+%      fan DOWN-LEFT out of the equation: down, so the reader still finishes
+%      at the bottom of the figure; left, into the column beside the chain.
+%      No sketches of the eigenvectors: for L>1 they are functions of all L+1
+%      node voltages, and a cartoon of them invites the reader to think the
+%      flip mechanism can be read off the picture.  The inset above already
+%      shows real single-unit eigenvectors, the only honest curve here.
+% ===========================================================================
+%  Both arrows leave from just under the leftmost result-MPS site, clear of
+%  its circle (which reaches x=102, y=227) and of the descender of mu_i, and
+%  land just outside the upper right corner of the group they name.  Measured
+%  label extents at 8pt: "DMRG" spans x=28..67, "Excited State" x=19..77, so
+%  the tips have to stop at x>67 and x>79 respectively.
+\draw[fatarrow] (101,227) -- (73,211);
+\draw[fatarrow] (103,224) -- (84,164);
+
+%  Spacing is 4pt within a group and 10pt between them, so the two eigenpairs
+%  read as two groups rather than as six stacked lines.  Everything here is
+%  centred on x=48; the widest line, mu_1, spans x=17..79 and so clears the
+%  chain, whose leftmost ink is the node dot at x=108.
+\node[figannot,anchor=north,figblueA]              at (48,214) {DMRG};
+\node[anchor=north]                                at (48,201) {$\ket{P_{\rm ss}}$};
+\node[figannot,anchor=north]                       at (48,184) {$\mu_0 = 0$};
+
+\node[figannot,anchor=north,align=center,figblueA] at (48,164)
+  {Excited State\\DMRG};
+\node[anchor=north]                                at (48,140) {$\ket{P_{\rm relax}}$};
+\node[figannot,anchor=north]                       at (48,123)
+  {$\mu_1 = 2\langle\tau_{\rm err}\rangle^{-1}$};
+
+\end{tikzpicture}
+\end{document}

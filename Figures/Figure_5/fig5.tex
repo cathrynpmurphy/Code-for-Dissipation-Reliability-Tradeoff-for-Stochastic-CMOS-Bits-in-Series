@@ -1,0 +1,125 @@
+% ---------------------------------------------------------------------------
+%  fig5.tex -- Figure 5 of the CMOS chain paper (fig:fig3), the main results
+%  figure: reliability, dissipation and the tradeoff between them.  Pure
+%  vector.
+%
+%  Replaces PostReviewFigures/CompositeFigure3_v3.pdf, a matplotlib export
+%  514.1 x 257.7pt shown at 6in, i.e. rescaled by 0.840, so its nominally 15pt
+%  axis labels landed on the page at 12.6pt.  Authored here at exactly
+%  \textwidth = 510pt: include with [width=\textwidth] in a figure*, no
+%  rescaling.  pdfinfo reads 508.09 bp.
+%
+%  Layout follows the original: (a) top-left, (b) bottom-left sharing the L
+%  axis, (c) full height on the right with its y axis on the right-hand side,
+%  its top edge level with (a) and its bottom edge level with (b).
+%
+%  Colour: figvddA..D from figstyle.tex, the four viridis samples the
+%  matplotlib figure used, so V_dd means the same colour in all three panels.
+%
+%  Data: fig5_{tau,dissipation,tradeoff,ref}.dat, written by prep_fig5.py from
+%  ../PostReviewFigures/Figure 5 Data/{tau_err,dissipation}.txt.
+%
+%  Build: make fig5
+% ---------------------------------------------------------------------------
+\documentclass[border=0pt]{standalone}
+\input{../figstyle}
+
+% ---- geometry, in points on the 510 x 200pt canvas ------------------------
+\def\axL{34}      % x of the left column's axes
+\def\axW{196}     % width of (a) and (b)
+\def\axH{81.5}    % height of (a) and (b)
+\def\axBb{26}     % y of (b), the lower left panel
+\def\axBa{115.5}  % y of (a) = \axBb + \axH + 8pt gap
+\def\cxL{256}     % x of (c) = \axL + \axW + 26pt
+\def\cxW{220}     % width of (c)
+\def\cxH{171}     % height of (c): bottom of (b) up to top of (a)
+
+\newcommand{\utau}{$\langle\tau_{\rm err}\rangle\ [\tau_0]$}
+\newcommand{\uq}{$\dot{Q}\ [k_{\rm B}T/\tau_0]$}
+
+\pgfplotsset{
+  fig5axis/.style={figaxis, anchor=south west, xmin=0.6, xmax=7.4,
+                   xtick={2,4,6}},
+  % marker on every production point, white-rimmed as in the original
+  fig5series/.style={line width=1.4pt, mark=*, mark size=1.8pt,
+                     mark options={draw=white, line width=0.4pt}},
+}
+\tikzset{
+  fig5letter/.style={figpanellabel, anchor=north west, fill=white,
+                     fill opacity=0.75, text opacity=1, rounded corners=1.5pt,
+                     inner sep=1.8pt},
+}
+
+\begin{document}
+\begin{tikzpicture}
+\figcanvas{\figfullwidth}{200pt}
+
+% =========================================================================
+%  (a)  mean bit-flip time against chain length
+% =========================================================================
+\begin{axis}[fig5axis,
+  at={(\axL pt,\axBa pt)}, width=\axW pt, height=\axH pt,
+  ymode=log, ymin=1e2, ymax=3e9,
+  ytick={1e2,1e5,1e8}, minor ytick={1e3,1e4,1e6,1e7,1e9},
+  xticklabels={}, ylabel={\utau},
+]
+% the reaction-diffusion reference: the V_dd=1.4 slope between L=1 and L=3,
+% continued straight, so the gap that opens above the data IS the sublinearity
+\addplot[figgray, line width=1.1pt, dashed, forget plot]
+  table[x=L,y=y] {fig5_ref.dat};
+\node[figgray, font=\figannot, anchor=base] at (axis cs:6.35,3.0e7) {$\propto L$};
+\addplot[fig5series, figvddA] table[x=L,y=t11] {fig5_tau.dat};
+\addplot[fig5series, figvddB] table[x=L,y=t12] {fig5_tau.dat};
+\addplot[fig5series, figvddC] table[x=L,y=t13] {fig5_tau.dat};
+\addplot[fig5series, figvddD] table[x=L,y=t14] {fig5_tau.dat};
+\node[fig5letter] at (axis description cs:0.045,0.955) {(a)};
+\end{axis}
+
+% =========================================================================
+%  (b)  steady-state dissipation against chain length
+% =========================================================================
+\begin{axis}[fig5axis,
+  at={(\axL pt,\axBb pt)}, width=\axW pt, height=\axH pt,
+  ymin=0, ymax=150, ytick={0,50,100,150},
+  xlabel={$L$}, ylabel={\uq},
+]
+\addplot[fig5series, figvddA] table[x=L,y=q11] {fig5_dissipation.dat};
+\addplot[fig5series, figvddB] table[x=L,y=q12] {fig5_dissipation.dat};
+\addplot[fig5series, figvddC] table[x=L,y=q13] {fig5_dissipation.dat};
+\addplot[fig5series, figvddD] table[x=L,y=q14] {fig5_dissipation.dat};
+\node[fig5letter] at (axis description cs:0.045,0.955) {(b)};
+\end{axis}
+
+% =========================================================================
+%  (c)  the dissipation-reliability tradeoff
+% =========================================================================
+%  Limits are matplotlib's autoscale on this content: 5% margins, taken in
+%  log space on the log axis (see the tail of prep_fig5.py).
+\begin{axis}[figaxis, anchor=south west,
+  at={(\cxL pt,\axBb pt)}, width=\cxW pt, height=\cxH pt,
+  xmin=3.7138, xmax=139.9192, xtick={50,100},
+  ymode=log, ymin=122.623, ymax=4.10104e6,
+  ytick={1e3,1e4,1e5,1e6},
+  yticklabel pos=right, ylabel near ticks,
+  % a right-hand ylabel placed via `ticklabel cs. loses figaxis.s label font
+  ylabel style={font=\figaxislabel},
+  xlabel={\uq}, ylabel={\utau},
+  legend style={at={(0.98,0.02)}, anchor=south east, cells={anchor=west},
+                row sep=0.5pt},
+  legend image post style={mark size=1.8pt},
+]
+\addplot[fig5series, line width=1.5pt, mark size=2pt, figvddA]
+  table[x=q11,y=t11] {fig5_tradeoff.dat};
+\addplot[fig5series, line width=1.5pt, mark size=2pt, figvddB]
+  table[x=q12,y=t12] {fig5_tradeoff.dat};
+\addplot[fig5series, line width=1.5pt, mark size=2pt, figvddC]
+  table[x=q13,y=t13] {fig5_tradeoff.dat};
+\addplot[fig5series, line width=1.5pt, mark size=2pt, figvddD]
+  table[x=q14,y=t14] {fig5_tradeoff.dat};
+\legend{$V_{\rm dd}/V_T=1.1$,$V_{\rm dd}/V_T=1.2$,%
+        $V_{\rm dd}/V_T=1.3$,$V_{\rm dd}/V_T=1.4$}
+\node[fig5letter] at (axis description cs:0.045,0.955) {(c)};
+\end{axis}
+
+\end{tikzpicture}
+\end{document}
